@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -12,13 +13,13 @@ public class PlayerControl : MonoBehaviour {
     Ray mouseRay;
     RaycastHit rayHit;
     int layerMask;
-    int area;
+    int offset;
 
     private void Start()
     {
         //Ignores collisions on all layers except int given
         layerMask = 1 << 9; //GROUND
-        area = 3; //RED
+        offset = 2;
     }
 
     private void Update()
@@ -32,11 +33,40 @@ public class PlayerControl : MonoBehaviour {
                 GameObject ground = rayHit.collider.gameObject;
                 NavMeshModifier mod = ground.GetComponent<NavMeshModifier>();
 
-                mod.area = area;
+                int currColor = Mathf.Clamp(mod.area - offset, 0, 7);
+                int newColor = currColor ^ (int)Player.Instance.CurrentColor;
+                mod.area = newColor + offset;
                 surf.BuildNavMesh();
 
                 Renderer groundRenderer = ground.GetComponent<Renderer>();
-                groundRenderer.material = groundRed;
+
+                switch ((Color)newColor)
+                {
+                    case Color.None:
+                        groundRenderer.material.color = UnityEngine.Color.white;
+                        break;
+                    case Color.Red:
+                        groundRenderer.material.color = new UnityEngine.Color(0.6981132f, 0.02305092f, 0.02305092f);
+                        break;
+                    case Color.Yellow:
+                        groundRenderer.material.color = UnityEngine.Color.yellow;
+                        break;
+                    case Color.Orange:
+                        groundRenderer.material.color = new UnityEngine.Color(1f, 0.5568628f, 0);
+                        break;
+                    case Color.Blue:
+                        groundRenderer.material.color = UnityEngine.Color.blue;
+                        break;
+                    case Color.Purple:
+                        groundRenderer.material.color = new UnityEngine.Color(0.6074608f, 0, 0.8867924f);
+                        break;
+                    case Color.Green:
+                        groundRenderer.material.color = UnityEngine.Color.green;
+                        break;
+                    case Color.Black:
+                        groundRenderer.material.color = UnityEngine.Color.black;
+                        break;
+                }
             }
         }
     }
